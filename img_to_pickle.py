@@ -25,13 +25,17 @@ def alert_rawdata(raw_dir):
 def open_img(dir_):
 
     data = []
-
+    data_mono = []
+    
     pnglist = glob.glob(dir_)
     for png in pnglist:
         img = cv2.imread(png)
         data.append(img)
 
-    return data
+        img_mono = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        data_mono.append(img_mono)
+
+    return data, data_mono
 
 def pickle_dump(pickle_dir, name, data):
     
@@ -46,42 +50,34 @@ def make_pickle(raw_dir, pickle_dir):
     test_dir = raw_dir + "/train/*"
     clean_dir = raw_dir + "/train_cleaned/*"
 
-    train_data = open_img(train_dir)
-    test_data = open_img(test_dir)
-    clean_data = open_img(clean_dir)
+    train_data, train_gray_data = open_img(train_dir)
+    test_data, test_gray_data = open_img(test_dir)
+    clean_data, clean_gray_data = open_img(clean_dir)
 
     print "... dump train_data"
     pickle_dump(pickle_dir, "train", train_data)
+    pickle_dump(pickle_dir, "train_gray", train_gray_data)
+    
     print "... dump test_data"
     pickle_dump(pickle_dir, "test", test_data)
+    pickle_dump(pickle_dir, "test_gray", test_gray_data)
+    
     print "... dump clean_data"
     pickle_dump(pickle_dir, "clean", clean_data)
+    pickle_dump(pickle_dir, "clean_gray", clean_gray_data)
 
     return train_data, test_data, clean_data
 
 
-def pickle_up(pickle_dir):
-    
-    train_pickle = pickle_dir + "/train.pickle"
-    test_pickle = pickle_dir + "/test.pickle"
-    clean_pickle = pickle_dir + "/clean.pickle"
-
-    print "... load train_data"
-    f = open(train_pickle, "r")
-    train_data = pickle.load(f)
+def pickle_up(pickle_dir, name):
+   
+    pickle_file = pickle_dir + "/" + name + ".pickle"
+    print "... load " + name + "_data"
+    f = open(pickle_file, "r")
+    data = pickle.load(f)
     f.close()
 
-    print "... load test_data"
-    f = open(train_pickle, "r")
-    test_data = pickle.load(f)
-    f.close()
-    
-    print "... load clean_data"
-    f = open(train_pickle, "r")
-    clean_data = pickle.load(f)
-    f.close()
-
-    return train_data, test_data, clean_data
+    return data
 
 def load_data():
     
@@ -91,7 +87,7 @@ def load_data():
     #pickledump directory : /tmp/kaggle_dirtydoc_data/pickle_data
     ###################################
 
-    root_dir = "/tmp/kaggle_dirtydoc_data"
+    root_dir = os.path.abspath(os.path.dirname(__file__)) + "/tmp/kaggle_dirtydoc_data"
     raw_dir = root_dir + "/raw_data"
     pickle_dir = root_dir + "/pickle_data"
 
@@ -116,22 +112,17 @@ def load_data():
         
     else:
         print "... load datasets"
-        train_data, test_data, clean_data = pickle_up(pickle_dir)
+        train_data = pickle_up(pickle_dir, "train")
+        test_data = pickle_up(pickle_dir, "test")
+        clean_data = pickle_up(pickle_dir, "clean")
+        
+        train_gray_data = pickle_up(pickle_dir, "train_gray")
+        test_gray_data = pickle_up(pickle_dir, "test_gray")
+        clean_gray_data = pickle_up(pickle_dir, "clean_gray")
 
-    return train_data, test_data, clean_data
+    return train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data
 
 if __name__ == '__main__':
-
-    train_data, test_data, clean_data = load_data()
-    print "len(train)"
-    print len(train_data)
-    print "len(test)"
-    print len(test_data)
-    print "len(clean)"
-    print len(clean_data)
-
-    print "---------------------"
-    print train_data[0]
-    print type(train_data[0])
-    print train_data[0].shape
+    
+    train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data = load_data()
 
