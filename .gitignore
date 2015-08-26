@@ -58,5 +58,11 @@ target/
 
 #.gitkeep
 tmp/*
-
+!tmp/aggle_dirtydoc_data/
+!tmp/aggle_dirtydoc_data/pickle_data/
+!tmp/aggle_dirtydoc_data/raw_data/
+!tmp/aggle_dirtydoc_data/raw_data/test/
+!tmp/aggle_dirtydoc_data/raw_data/train/
+!tmp/aggle_dirtydoc_data/raw_data/train_cleaned/
+!.gitkeep
 
