@@ -87,7 +87,7 @@ def load_data():
     #pickledump directory : /tmp/kaggle_dirtydoc_data/pickle_data
     ###################################
 
-    root_dir = os.path.abspath(os.path.dirname(__file__)) + "/tmp/kaggle_dirtydoc_data"
+    root_dir = os.path.abspath(os.path.dirname(__file__)) + "/../tmp/kaggle_dirtydoc_data"
     raw_dir = root_dir + "/raw_data"
     pickle_dir = root_dir + "/pickle_data"
 
@@ -125,7 +125,7 @@ def load_data():
 if __name__ == '__main__':
     
     #all
-    #train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data = load_data()
+    train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data = load_data()
     
     #part
     #{train, test, clean, train_gray, test_gray, clean_gray}
