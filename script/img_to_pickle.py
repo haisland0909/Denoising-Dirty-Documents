@@ -39,12 +39,14 @@ def open_img(dir_):
 
     return data, data_mono
 
+
 def pickle_dump(pickle_dir, name, data):
     
     savefile = pickle_dir + "/" + name + ".pickle"
     f = open(savefile, "w")
     pickle.dump(data, f)
     f.close()
+
 
 def make_pickle(raw_dir, pickle_dir):
     
@@ -80,6 +82,7 @@ def pickle_up(pickle_dir, name):
     f.close()
 
     return data
+
 
 def load_data():
     
@@ -123,6 +126,7 @@ def load_data():
         clean_gray_data = pickle_up(pickle_dir, "clean_gray")
 
     return train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data
+
 
 if __name__ == '__main__':
     
