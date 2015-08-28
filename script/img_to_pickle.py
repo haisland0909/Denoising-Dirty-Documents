@@ -1,10 +1,11 @@
-#codimg: UTF8
+#coding: UTF8
 
 import cv2
 import os
 import urllib2
 import pickle
 import glob
+import numpy as np
 
 def alert_rawdata(raw_dir):
 
@@ -35,7 +36,7 @@ def open_img(dir_):
         data.update({pngname:img})
 
         img_mono = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        data_mono.update({pngname:img})
+        data_mono.update({pngname:img_mono})
 
     return data, data_mono
 
@@ -69,7 +70,9 @@ def make_pickle(raw_dir, pickle_dir):
     print "... dump clean_data"
     pickle_dump(pickle_dir, "clean", clean_data)
     pickle_dump(pickle_dir, "clean_gray", clean_gray_data)
-    
+    labels = make_labels(clean_gray_data)
+    pickle_dump(pickle_dir, "train_label", labels)
+
     return train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data
 
 
@@ -83,6 +86,28 @@ def pickle_up(pickle_dir, name):
 
     return data
 
+
+def make_labels(src_data):
+    
+    labels = {}
+    
+    for key in src_data.keys():
+        label = []
+        for row in src_data[key]:
+    
+            label_c = []
+            for col in row:
+                if col >= 128:
+                    label_c.append(0)
+                else:
+                    label_c.append(1)
+
+            label.append(label_c)
+        label = np.asarray(label)
+        labels.update({key:label})
+
+    return labels
+    
 
 def load_data():
     
@@ -131,12 +156,16 @@ def load_data():
 if __name__ == '__main__':
     
     #all
-    train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data = load_data()
-    
-    #part
-    #{train, test, clean, train_gray, test_gray, clean_gray}
+    #train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data = load_data()
 
-    #pickle_dir = os.path.abspath(os.path.dirname(__file__)).replace("script", "") + "tmp/kaggle_dirtydoc_data/pickle_data"
-    #data = pickle_up(pickle_dir, "clean_gray")
+    #part
+    #{train, test, clean, train_gray, test_gray, clean_gray, train_label}
+
+    pickle_dir = os.path.abspath(os.path.dirname(__file__)).replace("script", "") + "tmp/kaggle_dirtydoc_data/pickle_data"
+    labels = pickle_up(pickle_dir, "train_label")
+    
+    print labels["5"].shape
+    print labels["5"][20]
+
 
 
