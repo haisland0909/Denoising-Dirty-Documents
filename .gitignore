@@ -55,4 +55,10 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Project
 tmp/
+
+# Eclipse
+.project
+.pydevproject
