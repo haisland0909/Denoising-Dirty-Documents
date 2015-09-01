@@ -11,6 +11,7 @@ import sklearn.ensemble
 import img_to_pickle as i_p
 import features as f
 import numpy as np
+import pandas as pd
 
 clf_dict = {
     'LR': {
@@ -49,6 +50,75 @@ def get_data():
     return (X, y)
 
 
+def get_data_Kfold():
+    '''
+    get X, y data
+
+    :rtype: tuple
+    '''
+    _, _, _, train_gray_data, _, clean_gray_data = i_p.load_data()
+    data_df = f.make_data_df(train_gray_data, clean_gray_data)
+    data_df = data_df.reset_index()
+    data_df.columns = ["pngname", "train", "label"]
+    
+    keys = np.asarray(train_gray_data.keys())
+    kf = cross_validation.KFold(n=len(keys), n_folds=5)
+    
+    return data_df, keys, kf
+
+
+def kfold_validation_model(model_name="LR"):
+    data_df, keys, kf = get_data_Kfold()
+     
+    """
+    SGD Regression model with stochastic gradient descent
+    Prnalty : L2 
+    """
+    clf = sklearn.linear_model.SGDRegressor(penalty='l2')
+    #clf = sklearn.linear_model.SGDClassifier(loss='log', penalty='l2')
+    #clf = sklearn.linear_model.LogisticRegression(penalty='l2')
+    fu = FeatureUnion(transformer_list=f.feature_transformer_rule)
+    scores = []
+
+    for train_index, valid_index in kf:
+        
+        train_keys = keys[train_index]
+        valid_keys = keys[valid_index]
+
+        for i in xrange(len(train_keys)):
+            if i == 0:
+                train_df = data_df[(data_df["pngname"] == train_keys[i])]
+            else:
+                train_df = pd.concat([train_df, data_df[(data_df["pngname"] == train_keys[i])] ])
+        
+        for i in xrange(len(valid_keys)):
+            if i == 0:
+                valid_df = data_df[(data_df["pngname"] == valid_keys[i])]
+            else:
+                valid_df = pd.concat([valid_df, data_df[(data_df["pngname"] == valid_keys[i])] ])
+
+        train_df = train_df.drop("pngname", axis=1).reset_index()
+        valid_df = valid_df.drop("pngname", axis=1).reset_index()
+
+        train_X = fu.fit_transform(train_df)
+        train_y = np.concatenate(train_df["label"].apply(lambda x: x.flatten()))
+        
+        valid_X = fu.fit_transform(valid_df)
+        valid_y = np.concatenate(valid_df["label"].apply(lambda x: x.flatten()))
+        
+
+        #clf.fit(train_X, train_y)
+        """
+        Error        
+        """
+        clf.partial_fit(train_X, train_y)
+        score = clf.score(valid_X, valid_y)
+        
+        scores.appnd(score)
+
+    print scores
+
+
 def cross_validation_model(model_name="LR"):
     X, y = get_data()
     clf = GridSearchCV(estimator=clf_dict[model_name]["clf"],
@@ -58,4 +128,7 @@ def cross_validation_model(model_name="LR"):
     print scores
 
 if __name__ == '__main__':
-    cross_validation_model()
+    #cross_validation_model()
+    kfold_validation_model()
+
+
