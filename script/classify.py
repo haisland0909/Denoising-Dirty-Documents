@@ -6,6 +6,7 @@ Created on 2015/08/28
 from sklearn.pipeline import FeatureUnion
 from sklearn.grid_search import GridSearchCV
 from sklearn import cross_validation
+from sklearn import preprocessing
 import sklearn.linear_model
 import sklearn.ensemble
 import img_to_pickle as i_p
@@ -67,6 +68,40 @@ def get_data_Kfold():
     return data_df, keys, kf
 
 
+def set_validdata(df, keys):
+    
+    fu = FeatureUnion(transformer_list=f.feature_transformer_rule)
+    
+    for i in xrange(len(keys)):
+        if i == 0:
+            valid_df = df[(df["pngname"] == keys[i])]
+        else:
+            valid_df = pd.concat([valid_df, df[(df["pngname"] == keys[i])]])
+
+    valid_df = valid_df.drop("pngname", axis=1).reset_index()
+    
+    X = fu.fit_transform(valid_df)
+    y = np.concatenate(valid_df["label"].apply(lambda x: x.flatten()))
+
+    return (X, y)
+
+
+def set_traindata(df, key):
+    
+    fu = FeatureUnion(transformer_list=f.feature_transformer_rule)
+    Std = preprocessing.StandardScaler()
+    
+    train_df = df[(df["pngname"] == key)].drop("pngname", axis=1).reset_index()
+    
+    X = fu.fit_transform(df)
+    y = np.concatenate(df["label"].apply(lambda x: x.flatten()))
+    
+    X = Std.fit_transform(X)
+    y = Std.fit_transform(y)
+
+    return (X, y)
+
+
 def kfold_validation_model(model_name="LR"):
     data_df, keys, kf = get_data_Kfold()
      
@@ -74,49 +109,33 @@ def kfold_validation_model(model_name="LR"):
     SGD Regression model with stochastic gradient descent
     Prnalty : L2 
     """
-    clf = sklearn.linear_model.SGDRegressor(penalty='l2')
-    #clf = sklearn.linear_model.SGDClassifier(loss='log', penalty='l2')
-    #clf = sklearn.linear_model.LogisticRegression(penalty='l2')
-    fu = FeatureUnion(transformer_list=f.feature_transformer_rule)
     scores = []
+    cnt = 1
 
     for train_index, valid_index in kf:
         
+        print cnt
+        cnt += 1
+        
+        clf = sklearn.linear_model.SGDRegressor(penalty='l2')
+
         train_keys = keys[train_index]
         valid_keys = keys[valid_index]
 
         for i in xrange(len(train_keys)):
-            if i == 0:
-                train_df = data_df[(data_df["pngname"] == train_keys[i])]
-            else:
-                train_df = pd.concat([train_df, data_df[(data_df["pngname"] == train_keys[i])] ])
-        
-        for i in xrange(len(valid_keys)):
-            if i == 0:
-                valid_df = data_df[(data_df["pngname"] == valid_keys[i])]
-            else:
-                valid_df = pd.concat([valid_df, data_df[(data_df["pngname"] == valid_keys[i])] ])
+            
+            train_X, train_y = set_traindata(data_df, train_keys[i])            
+            clf.partial_fit(train_X, train_y)
 
-        train_df = train_df.drop("pngname", axis=1).reset_index()
-        valid_df = valid_df.drop("pngname", axis=1).reset_index()
 
-        train_X = fu.fit_transform(train_df)
-        train_y = np.concatenate(train_df["label"].apply(lambda x: x.flatten()))
+        valid_X, valid_y = set_validdata(data_df, valid_keys)
         
-        valid_X = fu.fit_transform(valid_df)
-        valid_y = np.concatenate(valid_df["label"].apply(lambda x: x.flatten()))
-        
-
-        #clf.fit(train_X, train_y)
-        """
-        Error        
-        """
-        clf.partial_fit(train_X, train_y)
+        predict_prova = clf.predict(valid_X)
         score = clf.score(valid_X, valid_y)
-        
-        scores.appnd(score)
+        scores.append(score)
 
     print scores
+    print "Score_Average:", np.average(np.asarray(scores))
 
 
 def cross_validation_model(model_name="LR"):
