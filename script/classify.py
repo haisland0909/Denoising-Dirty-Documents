@@ -61,17 +61,17 @@ def get_data_Kfold():
     data_df = f.make_data_df(train_gray_data, clean_gray_data)
     data_df = data_df.reset_index()
     data_df.columns = ["pngname", "train", "label"]
-    
+
     keys = np.asarray(train_gray_data.keys())
     kf = cross_validation.KFold(n=len(keys), n_folds=5)
-    
+
     return data_df, keys, kf
 
 
 def set_validdata(df, keys):
-    
+
     fu = FeatureUnion(transformer_list=f.feature_transformer_rule)
-    
+
     for i in xrange(len(keys)):
         if i == 0:
             valid_df = df[(df["pngname"] == keys[i])]
@@ -79,7 +79,7 @@ def set_validdata(df, keys):
             valid_df = pd.concat([valid_df, df[(df["pngname"] == keys[i])]])
 
     valid_df = valid_df.drop("pngname", axis=1).reset_index()
-    
+
     X = fu.fit_transform(valid_df)
     y = np.concatenate(valid_df["label"].apply(lambda x: x.flatten()))
 
@@ -87,15 +87,15 @@ def set_validdata(df, keys):
 
 
 def set_traindata(df, key):
-    
+
     fu = FeatureUnion(transformer_list=f.feature_transformer_rule)
     Std = preprocessing.StandardScaler()
-    
+
     train_df = df[(df["pngname"] == key)].drop("pngname", axis=1).reset_index()
-    
+
     X = fu.fit_transform(df)
     y = np.concatenate(df["label"].apply(lambda x: x.flatten()))
-    
+
     X = Std.fit_transform(X)
     y = Std.fit_transform(y)
 
@@ -104,33 +104,31 @@ def set_traindata(df, key):
 
 def kfold_validation_model(model_name="LR"):
     data_df, keys, kf = get_data_Kfold()
-     
+
     """
     SGD Regression model with stochastic gradient descent
-    Prnalty : L2 
+    Prnalty : L2
     """
     scores = []
     cnt = 1
 
     for train_index, valid_index in kf:
-        
+
         print cnt
         cnt += 1
-        
+
         clf = sklearn.linear_model.SGDRegressor(penalty='l2')
 
         train_keys = keys[train_index]
         valid_keys = keys[valid_index]
 
         for i in xrange(len(train_keys)):
-            
-            train_X, train_y = set_traindata(data_df, train_keys[i])            
+
+            train_X, train_y = set_traindata(data_df, train_keys[i])
             clf.partial_fit(train_X, train_y)
 
-
         valid_X, valid_y = set_validdata(data_df, valid_keys)
-        
-        predict_prova = clf.predict(valid_X)
+        # predict_prova = clf.predict(valid_X)
         score = clf.score(valid_X, valid_y)
         scores.append(score)
 
@@ -147,7 +145,6 @@ def cross_validation_model(model_name="LR"):
     print scores
 
 if __name__ == '__main__':
-    #cross_validation_model()
+    # cross_validation_model()
     kfold_validation_model()
-
 
