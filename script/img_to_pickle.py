@@ -1,11 +1,11 @@
-#coding: UTF8
+# coding: UTF8
 
 import cv2
 import os
-import urllib2
 import pickle
 import glob
 import numpy as np
+
 
 def alert_rawdata(raw_dir):
 
@@ -27,22 +27,23 @@ def open_img(dir_):
 
     data = {}
     data_mono = {}
-    
+
     pnglist = glob.glob(dir_)
     for png in pnglist:
-        pngname = png.split("/")[-1].replace(".png", "")
+        f_name = os.path.basename(png)
+        pngname, ext = os.path.splitext(f_name)
         img = cv2.imread(png)
-        
-        data.update({pngname:img})
+
+        data.update({pngname: img})
 
         img_mono = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        data_mono.update({pngname:img_mono})
+        data_mono.update({pngname: img_mono})
 
     return data, data_mono
 
 
 def pickle_dump(pickle_dir, name, data):
-    
+
     savefile = pickle_dir + "/" + name + ".pickle"
     f = open(savefile, "w")
     pickle.dump(data, f)
@@ -50,7 +51,7 @@ def pickle_dump(pickle_dir, name, data):
 
 
 def make_pickle(raw_dir, pickle_dir):
-    
+
     train_dir = raw_dir + "/train/*"
     test_dir = raw_dir + "/train/*"
     clean_dir = raw_dir + "/train_cleaned/*"
@@ -62,11 +63,11 @@ def make_pickle(raw_dir, pickle_dir):
     print "... dump train_data"
     pickle_dump(pickle_dir, "train", train_data)
     pickle_dump(pickle_dir, "train_gray", train_gray_data)
-    
+
     print "... dump test_data"
     pickle_dump(pickle_dir, "test", test_data)
     pickle_dump(pickle_dir, "test_gray", test_gray_data)
-    
+
     print "... dump clean_data"
     pickle_dump(pickle_dir, "clean", clean_data)
     pickle_dump(pickle_dir, "clean_gray", clean_gray_data)
@@ -77,7 +78,7 @@ def make_pickle(raw_dir, pickle_dir):
 
 
 def pickle_up(pickle_dir, name):
-   
+
     pickle_file = pickle_dir + "/" + name + ".pickle"
     print "... load " + name + "_data"
     f = open(pickle_file, "r")
@@ -88,36 +89,30 @@ def pickle_up(pickle_dir, name):
 
 
 def make_labels(src_data):
-    
+
     labels = {}
-    
+
     for key in src_data.keys():
         label = []
         for row in src_data[key]:
-    
-            label_c = []
-            for col in row:
-                if col >= 128:
-                    label_c.append(0)
-                else:
-                    label_c.append(1)
-
+            label_c = [col / 255.0 for col in row]
             label.append(label_c)
         label = np.asarray(label)
-        labels.update({key:label})
+        labels.update({key: label})
 
     return labels
-    
+
 
 def load_data():
-    
+
     ###################################
-    #kaggle directory :/tmp/kaggle_dirtydoc_data
-    #rawdata directory : /tmp/kaggle_dirtydoc_data/raw_data
-    #pickledump directory : /tmp/kaggle_dirtydoc_data/pickle_data
+    # kaggle directory :/tmp/kaggle_dirtydoc_data
+    # rawdata directory : /tmp/kaggle_dirtydoc_data/raw_data
+    # pickledump directory : /tmp/kaggle_dirtydoc_data/pickle_data
     ###################################
 
-    root_dir = os.path.abspath(os.path.dirname(__file__)).replace("/script", "") + "/tmp/kaggle_dirtydoc_data"
+    root_dir = os.path.abspath(os.path.dirname(__file__)) +\
+        "/../tmp/kaggle_dirtydoc_data"
     raw_dir = root_dir + "/raw_data"
     pickle_dir = root_dir + "/pickle_data"
 
@@ -125,27 +120,28 @@ def load_data():
         os.mkdir(root_dir)
         os.mkdir(raw_dir)
         os.mkdir(pickle_dir)
-        
+
         alert_rawdata(raw_dir)
 
     elif not os.path.isdir(raw_dir + "/train"):
-        
+
         alert_rawdata(raw_dir)
 
-    elif not os.path.isdir(pickle_dir) or not os.path.isfile(pickle_dir+"/train.pickle"):
+    elif (not os.path.isdir(pickle_dir) or not
+          os.path.isfile(pickle_dir + "/train.pickle")):
 
         if not os.path.isdir(pickle_dir):
             os.mkdir(pickle_dir)
 
         print "... make pickle_dump file"
         train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data = make_pickle(raw_dir, pickle_dir)
-        
+
     else:
         print "... load datasets"
         train_data = pickle_up(pickle_dir, "train")
         test_data = pickle_up(pickle_dir, "test")
         clean_data = pickle_up(pickle_dir, "clean")
-        
+
         train_gray_data = pickle_up(pickle_dir, "train_gray")
         test_gray_data = pickle_up(pickle_dir, "test_gray")
         clean_gray_data = pickle_up(pickle_dir, "clean_gray")
@@ -154,15 +150,12 @@ def load_data():
 
 
 if __name__ == '__main__':
-    
-    #all
+
+    # all
     train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data = load_data()
 
-    #part
+    # part
     #{train, test, clean, train_gray, test_gray, clean_gray, train_label}
 
     #pickle_dir = os.path.abspath(os.path.dirname(__file__)).replace("script", "") + "tmp/kaggle_dirtydoc_data/pickle_data"
     #labels = pickle_up(pickle_dir, "train_label")
-
-
-

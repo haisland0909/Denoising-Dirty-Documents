@@ -147,4 +147,3 @@ def cross_validation_model(model_name="LR"):
 if __name__ == '__main__':
     # cross_validation_model()
     kfold_validation_model()
-
