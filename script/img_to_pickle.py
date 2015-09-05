@@ -74,7 +74,7 @@ def make_pickle(raw_dir, pickle_dir):
     labels = make_labels(clean_gray_data)
     pickle_dump(pickle_dir, "train_label", labels)
 
-    return train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data
+    return train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data, labels
 
 
 def pickle_up(pickle_dir, name):
@@ -134,7 +134,7 @@ def load_data():
             os.mkdir(pickle_dir)
 
         print "... make pickle_dump file"
-        train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data = make_pickle(raw_dir, pickle_dir)
+        train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data, labels = make_pickle(raw_dir, pickle_dir)
 
     else:
         print "... load datasets"
@@ -146,13 +146,13 @@ def load_data():
         test_gray_data = pickle_up(pickle_dir, "test_gray")
         clean_gray_data = pickle_up(pickle_dir, "clean_gray")
 
-    return train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data
+    return train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data, labels
 
 
 if __name__ == '__main__':
 
     # all
-    train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data = load_data()
+    train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data, labels = load_data()
 
     # part
     #{train, test, clean, train_gray, test_gray, clean_gray, train_label}

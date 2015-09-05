@@ -42,7 +42,7 @@ def get_data():
 
     :rtype: tuple
     '''
-    _, _, _, train_gray_data, _, clean_gray_data = i_p.load_data()
+    _, _, _, train_gray_data, _, clean_gray_data, labels = i_p.load_data()
     data_df = f.make_data_df(train_gray_data, clean_gray_data)
     fu = FeatureUnion(transformer_list=f.feature_transformer_rule)
     X = fu.fit_transform(data_df)
@@ -57,7 +57,7 @@ def get_data_Kfold():
 
     :rtype: tuple
     '''
-    _, _, _, train_gray_data, _, clean_gray_data = i_p.load_data()
+    _, _, _, train_gray_data, _, clean_gray_data, labels = i_p.load_data()
     data_df = f.make_data_df(train_gray_data, clean_gray_data)
     data_df = data_df.reset_index()
     data_df.columns = ["pngname", "train", "label"]

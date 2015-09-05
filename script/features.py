@@ -149,7 +149,7 @@ feature_transformer_rule = [
 ]
 
 if __name__ == '__main__':
-    train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data = i_p.load_data()
+    train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data, labels = i_p.load_data()
     data_df = make_data_df(train_gray_data, clean_gray_data)
     transformer_list = [
         ('average', AverageImage())
