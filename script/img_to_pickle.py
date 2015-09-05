@@ -146,6 +146,8 @@ def load_data():
         test_gray_data = pickle_up(pickle_dir, "test_gray")
         clean_gray_data = pickle_up(pickle_dir, "clean_gray")
 
+        labels = pickle_up(pickle_dir, "train_label")
+
     return train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data, labels
 
 

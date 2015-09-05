@@ -43,7 +43,8 @@ def get_data():
     :rtype: tuple
     '''
     _, _, _, train_gray_data, _, clean_gray_data, labels = i_p.load_data()
-    data_df = f.make_data_df(train_gray_data, clean_gray_data)
+    #data_df = f.make_data_df(train_gray_data, clean_gray_data)
+    data_df = f.make_data_df(train_gray_data, labels)
     fu = FeatureUnion(transformer_list=f.feature_transformer_rule)
     X = fu.fit_transform(data_df)
     y = np.concatenate(data_df["label"].apply(lambda x: x.flatten()))
@@ -51,22 +52,34 @@ def get_data():
     return (X, y)
 
 
-def get_data_Kfold():
+def get_data_Kfold(mode):
     '''
     get X, y data
 
     :rtype: tuple
     '''
-    _, _, _, train_gray_data, _, clean_gray_data, labels = i_p.load_data()
-    data_df = f.make_data_df(train_gray_data, clean_gray_data)
-    data_df = data_df.reset_index()
-    data_df.columns = ["pngname", "train", "label"]
 
-    keys = np.asarray(train_gray_data.keys())
-    kf = cross_validation.KFold(n=len(keys), n_folds=5)
+    if mode == "train":
+        _, _, _, train_gray_data, _, clean_gray_data, labels = i_p.load_data()
+        data_df = f.make_data_df(train_gray_data, clean_gray_data)
+        data_df = data_df.reset_index()
+        data_df.columns = ["pngname", "train", "label"]
 
-    return data_df, keys, kf
+        keys = np.asarray(train_gray_data.keys())
+        kf = cross_validation.KFold(n=len(keys), n_folds=5)
 
+        return data_df, keys, kf
+
+    elif mode == "test":
+       
+        _, _, _, _, test_gray_data, _, _ = i_p.load_data()
+
+        return test_gray_data
+
+    else:
+        print "mode error!"
+        print "set \"train\" or \"test\""
+        quit()
 
 def set_validdata(df, keys):
 
@@ -103,7 +116,7 @@ def set_traindata(df, key):
 
 
 def kfold_validation_model(model_name="LR"):
-    data_df, keys, kf = get_data_Kfold()
+    data_df, keys, kf = get_data_Kfold("train")
 
     """
     SGD Regression model with stochastic gradient descent

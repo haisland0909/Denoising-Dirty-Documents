@@ -10,12 +10,27 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import FeatureUnion
 
 
+
+def make_test_df(test_gray_data):
+    data_df = pd.DataFrame([test_gray_data], index=["input"]).T
+
+    return data_df.dropna()
+
+
+def make_data_df(train_gray_data, labels):
+    data_df = pd.DataFrame([train_gray_data, labels],
+                           index=["input", "label"]).T
+
+    return data_df.dropna()
+
+
+"""
 def make_data_df(train_gray_data, clean_gray_data):
     data_df = pd.DataFrame([train_gray_data, clean_gray_data],
                            index=["train", "label"]).T
 
     return data_df.dropna()
-
+"""
 
 class GrayParam(BaseEstimator, TransformerMixin):
     '''
@@ -43,7 +58,9 @@ class GrayParam(BaseEstimator, TransformerMixin):
         :param pandas.DataFrame data_df:
         :rtype: numpy.array
         '''
-        train = data_df["train"]
+        
+        train = data_df["input"]
+        #train = data_df["train"]
 
         return np.concatenate(train.apply(lambda x: x.flatten()))[None].T\
             .astype(np.float)
@@ -91,7 +108,9 @@ class SideofImage(BaseEstimator, TransformerMixin):
         :param padas.DataFrame data_df
         :rtype: numpy.array
         '''
-        train = data_df["train"]
+        
+        train = data_df["input"]
+        #train = data_df["train"]
 
         return np.concatenate(train.apply(self.get_feature_array))[None].T\
             .astype(np.float)
@@ -137,7 +156,8 @@ class AverageImage(BaseEstimator, TransformerMixin):
         :param padas.DataFrame data_df
         :rtype: numpy.array
         '''
-        train = data_df["train"]
+        train = data_df["input"]
+        #train = data_df["train"]
 
         return np.concatenate(train.apply(self.get_feature_array))[None].T\
             .astype(np.float)
