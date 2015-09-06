@@ -86,6 +86,7 @@ def get_data_Kfold(mode):
 def set_validdata(df, keys):
 
     fu = FeatureUnion(transformer_list=f.feature_transformer_rule)
+    Std = preprocessing.StandardScaler()
 
     for i in xrange(len(keys)):
         if i == 0:
@@ -98,6 +99,9 @@ def set_validdata(df, keys):
     X = fu.fit_transform(valid_df)
     y = np.concatenate(valid_df["label"].apply(lambda x: x.flatten()))
 
+    X = Std.fit_transform(X)
+    #y = Std.fit_transform(y)
+    
     return (X, y)
 
 
@@ -112,7 +116,7 @@ def set_traindata(df, key):
     y = np.concatenate(df["label"].apply(lambda x: x.flatten()))
 
     X = Std.fit_transform(X)
-    y = Std.fit_transform(y)
+    #y = Std.fit_transform(y)
 
     return (X, y)
 
