@@ -7,6 +7,7 @@ from sklearn.pipeline import FeatureUnion
 from sklearn.grid_search import GridSearchCV
 from sklearn import cross_validation
 from sklearn import preprocessing
+from sklearn.metrics import mean_absolute_error
 import sklearn.linear_model
 import sklearn.ensemble
 import img_to_pickle as i_p
@@ -42,8 +43,8 @@ def get_data():
 
     :rtype: tuple
     '''
-    _, _, _, train_gray_data, _, clean_gray_data, labels = i_p.load_data()
-    #data_df = f.make_data_df(train_gray_data, clean_gray_data)
+    _, _, _, train_gray_data, _, _, labels = i_p.load_data()
+    # data_df = f.make_data_df(train_gray_data, clean_gray_data)
     data_df = f.make_data_df(train_gray_data, labels)
     fu = FeatureUnion(transformer_list=f.feature_transformer_rule)
     X = fu.fit_transform(data_df)
@@ -60,10 +61,10 @@ def get_data_Kfold(mode):
     '''
 
     if mode == "train":
-        _, _, _, train_gray_data, _, clean_gray_data, labels = i_p.load_data()
-        data_df = f.make_data_df(train_gray_data, clean_gray_data)
+        _, _, _, train_gray_data, _, _, labels = i_p.load_data()
+        data_df = f.make_data_df(train_gray_data, labels)
         data_df = data_df.reset_index()
-        data_df.columns = ["pngname", "train", "label"]
+        data_df.columns = ["pngname", "input", "label"]
 
         keys = np.asarray(train_gray_data.keys())
         kf = cross_validation.KFold(n=len(keys), n_folds=5)
@@ -71,7 +72,7 @@ def get_data_Kfold(mode):
         return data_df, keys, kf
 
     elif mode == "test":
-       
+
         _, _, _, _, test_gray_data, _, _ = i_p.load_data()
 
         return test_gray_data
@@ -80,6 +81,7 @@ def get_data_Kfold(mode):
         print "mode error!"
         print "set \"train\" or \"test\""
         quit()
+
 
 def set_validdata(df, keys):
 
@@ -142,7 +144,8 @@ def kfold_validation_model(model_name="LR"):
 
         valid_X, valid_y = set_validdata(data_df, valid_keys)
         # predict_prova = clf.predict(valid_X)
-        score = clf.score(valid_X, valid_y)
+        predict_y = clf.predict(valid_X)
+        score = mean_absolute_error(valid_y, predict_y)
         scores.append(score)
 
     print scores

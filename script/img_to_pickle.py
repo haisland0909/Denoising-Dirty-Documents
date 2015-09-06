@@ -154,10 +154,10 @@ def load_data():
 if __name__ == '__main__':
 
     # all
-    #train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data, labels = load_data()
+    # train_data, test_data, clean_data, train_gray_data, test_gray_data, clean_gray_data, labels = load_data()
 
     # part
-    #{train, test, clean, train_gray, test_gray, clean_gray, train_label, labels}
+    # {train, test, clean, train_gray, test_gray, clean_gray, train_label, labels}
 
     pickle_dir = os.path.abspath(os.path.dirname(__file__)).replace("script", "") + "tmp/kaggle_dirtydoc_data/pickle_data"
     labels = pickle_up(pickle_dir, "train_label")
