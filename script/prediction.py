@@ -71,10 +71,6 @@ def convert_traindata(train_gray_data, labels):
 def prediction(clf_name):
     
     
-    print SUBMISSION_DIR
-    print submission_path
-    quit()
-
     print "****************classifier****************"
     print clf_dict[clf_name]["clf"]
     clf = clf_dict[clf_name]["clf"]
@@ -94,8 +90,8 @@ def prediction(clf_name):
    
     #operation check
     #train_df, train_keys, test_df, test_keys  = pre.make_checkdata(mode="df")
+    #train_df, train_keys, _, _  = pre.make_checkdata(mode="df")
 
-    
     for i in xrange(len(train_keys)):
 
         train_X, train_y = classify.set_traindata(train_df, train_keys[i])
