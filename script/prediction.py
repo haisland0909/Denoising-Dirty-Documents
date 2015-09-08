@@ -30,7 +30,7 @@ clf_dict = {
         "clf": sklearn.ensemble.GradientBoostingClassifier(random_state=1, learning_rate=0.005, n_estimators=50, \
                 subsample=1.0, max_features=1.0, min_samples_split=2, min_samples_leaf=2, max_depth=2)
     },
-    'SR':{   
+    'SGDR':{   
         "name": 'SGD Regression',
         "clf": sklearn.linear_model.SGDRegressor(penalty='l2'),
     }
@@ -84,19 +84,30 @@ def prediction(clf_name):
 
     train_df = train_df.reset_index()
     test_df = test_df.reset_index()
-    
+
     train_df.columns = ["pngname", "input", "label"]
     test_df.columns = ["pngname", "input"]
-   
-    #operation check
-    #train_df, train_keys, test_df, test_keys  = pre.make_checkdata(mode="df")
-    #train_df, train_keys, _, _  = pre.make_checkdata(mode="df")
-
-    for i in xrange(len(train_keys)):
-
-        train_X, train_y = classify.set_traindata(train_df, train_keys[i])
-        clf.partial_fit(train_X, train_y) 
     
+    if clf_name == "SGDB":
+        
+       
+        #operation check
+        #train_df, train_keys, test_df, test_keys  = pre.make_checkdata(mode="df")
+        #train_df, train_keys, _, _  = pre.make_checkdata(mode="df")
+
+        for i in xrange(len(train_keys)):
+
+            train_X, train_y = classify.set_traindata(train_df, train_keys[i])
+            clf.partial_fit(train_X, train_y) 
+
+    else:
+
+        fu = FeatureUnion(transformer_list=f.feature_transformer_rule)
+        train_X = fu.fit_transform(train_df)
+        train_y = np.concatenate(train_df["label"].apply(lambda x: x.flatten()))
+        
+        clf.fit(train_X, train_y)
+
     
     for i in xrange(len(test_keys)):
 
@@ -138,7 +149,8 @@ def prediction(clf_name):
 
 if __name__ == '__main__':
 
-    clf_name = "SR"
+    #clf_name = "SGDR"
+    clf_name = "LR"
     prediction(clf_name)
 
 
