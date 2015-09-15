@@ -162,17 +162,113 @@ class AverageImage(BaseEstimator, TransformerMixin):
         return np.concatenate(train.apply(self.get_feature_array))[None].T\
             .astype(np.float)
 
+
+class RowAverageImage(BaseEstimator, TransformerMixin):
+    '''
+    row average of image feature
+    '''
+
+    def get_feature_names(self):
+
+        return [self.__class__.__name__]
+
+    @staticmethod
+    def get_feature_array(image_arr):
+        '''
+        get avarage image
+
+        :param numpy.array image_arr:
+        :rtype: numpy.array
+        '''
+        res = np.ones(image_arr.shape)
+        mean = image_arr.mean(axis=1)[None].T
+        res = res * mean
+
+        return res.flatten()
+
+    def fit(self, data_df, y=None):
+        '''
+        fit
+
+        :param padas.DataFrame data_df
+        :rtype: SideofImage
+        '''
+
+        return self
+
+    def transform(self, data_df):
+        '''
+        transform
+
+        :param padas.DataFrame data_df
+        :rtype: numpy.array
+        '''
+        train = data_df["input"]
+        # train = data_df["train"]
+
+        return np.concatenate(train.apply(self.get_feature_array))[None].T\
+            .astype(np.float)
+
+
+class ColAverageImage(BaseEstimator, TransformerMixin):
+    '''
+    col average of image feature
+    '''
+
+    def get_feature_names(self):
+
+        return [self.__class__.__name__]
+
+    @staticmethod
+    def get_feature_array(image_arr):
+        '''
+        get avarage image
+
+        :param numpy.array image_arr:
+        :rtype: numpy.array
+        '''
+        res = np.ones(image_arr.shape)
+        mean = image_arr.mean(axis=0)[None]
+        res = res * mean
+
+        return res.flatten()
+
+    def fit(self, data_df, y=None):
+        '''
+        fit
+
+        :param padas.DataFrame data_df
+        :rtype: SideofImage
+        '''
+
+        return self
+
+    def transform(self, data_df):
+        '''
+        transform
+
+        :param padas.DataFrame data_df
+        :rtype: numpy.array
+        '''
+        train = data_df["input"]
+        # train = data_df["train"]
+
+        return np.concatenate(train.apply(self.get_feature_array))[None].T\
+            .astype(np.float)
+
 feature_transformer_rule = [
     ('gray', GrayParam()),
     ('side', SideofImage()),
     ('avarage', AverageImage()),
+    ('rowavarage', RowAverageImage()),
+    ('colavarage', ColAverageImage()),
 ]
 
 if __name__ == '__main__':
     _, _, _, train_gray_data, _, _, labels = i_p.load_data()
     data_df = make_data_df(train_gray_data, labels)
     transformer_list = [
-        ('average', AverageImage())
+        ('average', RowAverageImage())
     ]
     fu = FeatureUnion(transformer_list=transformer_list)
     feature = fu.fit_transform(data_df)
