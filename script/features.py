@@ -256,19 +256,116 @@ class ColAverageImage(BaseEstimator, TransformerMixin):
         return np.concatenate(train.apply(self.get_feature_array))[None].T\
             .astype(np.float)
 
+
+class RelativeCoordinateX(BaseEstimator, TransformerMixin):
+    '''
+    relative coordinate of image feature
+    '''
+
+    def get_feature_names(self):
+
+        return [self.__class__.__name__]
+
+    @staticmethod
+    def get_feature_array(image_arr):
+        '''
+        relative coordinate
+
+        :param numpy.array image_arr:
+        :rtype: numpy.array
+        '''
+        x_shape, y_shape = image_arr.shape
+        x = np.linspace(0, 1, x_shape)
+        y = np.linspace(0, 1, y_shape)
+        xv, yv = np.meshgrid(x, y)
+
+        return xv.flatten()
+
+    def fit(self, data_df, y=None):
+        '''
+        fit
+
+        :param padas.DataFrame data_df
+        :rtype: RelativeCoordinateX
+        '''
+
+        return self
+
+    def transform(self, data_df):
+        '''
+        transform
+
+        :param padas.DataFrame data_df
+        :rtype: numpy.array
+        '''
+        train = data_df["input"]
+        # train = data_df["train"]
+
+        return np.concatenate(train.apply(self.get_feature_array))[None].T\
+            .astype(np.float)
+
+
+class RelativeCoordinateY(BaseEstimator, TransformerMixin):
+    '''
+    relative coordinate of image feature
+    '''
+
+    def get_feature_names(self):
+
+        return [self.__class__.__name__]
+
+    @staticmethod
+    def get_feature_array(image_arr):
+        '''
+        relative coordinate
+
+        :param numpy.array image_arr:
+        :rtype: numpy.array
+        '''
+        x_shape, y_shape = image_arr.shape
+        x = np.linspace(0, 1, x_shape)
+        y = np.linspace(0, 1, y_shape)
+        xv, yv = np.meshgrid(x, y)
+
+        return yv.flatten()
+
+    def fit(self, data_df, y=None):
+        '''
+        fit
+
+        :param padas.DataFrame data_df
+        :rtype: RelativeCoordinateY
+        '''
+
+        return self
+
+    def transform(self, data_df):
+        '''
+        transform
+
+        :param padas.DataFrame data_df
+        :rtype: numpy.array
+        '''
+        train = data_df["input"]
+        # train = data_df["train"]
+
+        return np.concatenate(train.apply(self.get_feature_array))[None].T\
+            .astype(np.float)
+
 feature_transformer_rule = [
     ('gray', GrayParam()),
-    ('side', SideofImage()),
     ('avarage', AverageImage()),
     ('rowavarage', RowAverageImage()),
     ('colavarage', ColAverageImage()),
+    ('coordinateX', RelativeCoordinateX()),
+    ('coordinateY', RelativeCoordinateY()),
 ]
 
 if __name__ == '__main__':
     _, _, _, train_gray_data, _, _, labels = i_p.load_data()
     data_df = make_data_df(train_gray_data, labels)
     transformer_list = [
-        ('average', RowAverageImage())
+        ('average', RelativeCoordinateY())
     ]
     fu = FeatureUnion(transformer_list=transformer_list)
     feature = fu.fit_transform(data_df)
