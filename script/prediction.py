@@ -74,7 +74,7 @@ def prediction(clf_name):
     print "****************classifier****************"
     print clf_dict[clf_name]["clf"]
     clf = clf_dict[clf_name]["clf"]
-
+    
     _, _, _, train_gray_data, test_gray_data, _, labels = i_p.load_data()
     train_keys = train_gray_data.keys()
     test_keys = test_gray_data.keys()
@@ -88,6 +88,7 @@ def prediction(clf_name):
     train_df.columns = ["pngname", "input", "label"]
     test_df.columns = ["pngname", "input"]
 
+    
     if clf_name == "SGDB":
 
         # operation check
@@ -101,6 +102,9 @@ def prediction(clf_name):
 
     else:
 
+        #operation check
+        #train_df, train_keys, _, _  = pre.make_checkdata(mode="df")
+        
         fu = FeatureUnion(transformer_list=f.feature_transformer_rule)
         train_X = fu.fit_transform(train_df)
         train_y = np.concatenate(train_df["label"].apply(lambda x: x.flatten()))
