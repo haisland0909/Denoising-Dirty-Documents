@@ -27,9 +27,9 @@ clf_dict = {
     'GB2': {
         "name": 'Gradient Boosting New',
         "clf": GradientBoostingRegressor(random_state=1, learning_rate=0.005,
-                                         n_estimators=1000, subsample=1.0,
-                                         max_features=1.0, min_samples_split=2,
-                                         min_samples_leaf=2, max_depth=2)
+                                         n_estimators=3000, subsample=0.8,
+                                         max_features=0.8, min_samples_split=2,
+                                         min_samples_leaf=2, max_depth=5)
     },
     'SGDR': {
         "name": 'SGD Regression',
@@ -50,7 +50,7 @@ def convert_testdata(test_gray_data):
     Std = preprocessing.StandardScaler()
 
     X_test = fu.fit_transform(data_df)
-    X_test = Std.fit_transform(X_test)
+    #X_test = Std.fit_transform(X_test)
 
     return X_test
 
