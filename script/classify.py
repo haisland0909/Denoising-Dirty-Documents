@@ -44,7 +44,6 @@ def get_data():
     :rtype: tuple
     '''
     _, _, _, train_gray_data, _, _, labels = i_p.load_data()
-    # data_df = f.make_data_df(train_gray_data, clean_gray_data)
     data_df = f.make_data_df(train_gray_data, labels)
     fu = FeatureUnion(transformer_list=f.feature_transformer_rule)
     X = fu.fit_transform(data_df)
@@ -100,8 +99,7 @@ def set_validdata(df, keys):
     y = np.concatenate(valid_df["label"].apply(lambda x: x.flatten()))
 
     X = Std.fit_transform(X)
-    #y = Std.fit_transform(y)
-    
+
     return (X, y)
 
 
@@ -110,13 +108,10 @@ def set_traindata(df, key):
     fu = FeatureUnion(transformer_list=f.feature_transformer_rule)
     Std = preprocessing.StandardScaler()
 
-    train_df = df[(df["pngname"] == key)].drop("pngname", axis=1).reset_index()
-
     X = fu.fit_transform(df)
     y = np.concatenate(df["label"].apply(lambda x: x.flatten()))
 
     X = Std.fit_transform(X)
-    #y = Std.fit_transform(y)
 
     return (X, y)
 
@@ -163,6 +158,19 @@ def cross_validation_model(model_name="LR"):
                        n_jobs=3, scoring="accuracy")
     scores = cross_validation.cross_val_score(clf, X, y, cv=5)
     print scores
+
+
+def downsampling_data(X, y, ratio=0.5, random_state=1):
+    np.random.seed(random_state)
+    assert X.shape[0] == y.size
+    length = X.shape[0]
+    len_range = range(0, length)
+    use_length = int(length * ratio)
+    use_index = np.random.choice(len_range, use_length, replace=False)
+    use_X = X[use_index, :]
+    use_y = y[use_index]
+
+    return (use_X, use_y)
 
 if __name__ == '__main__':
     # cross_validation_model()

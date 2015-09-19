@@ -257,9 +257,15 @@ class ColAverageImage(BaseEstimator, TransformerMixin):
             .astype(np.float)
 
 
+<<<<<<< HEAD
 class SobelFilter_hol(BaseEstimator, TransformerMixin):
     '''
     gray scale feature
+=======
+class RelativeCoordinateX(BaseEstimator, TransformerMixin):
+    '''
+    relative coordinate of image feature
+>>>>>>> cdd45421d0182f00e46f833fe72cbbf03691c019
     '''
 
     def get_feature_names(self):
@@ -267,13 +273,20 @@ class SobelFilter_hol(BaseEstimator, TransformerMixin):
         return [self.__class__.__name__]
 
     @staticmethod
+<<<<<<< HEAD
     def get_filter_array(image_arr):
         '''
         get avarage image
+=======
+    def get_feature_array(image_arr):
+        '''
+        relative coordinate
+>>>>>>> cdd45421d0182f00e46f833fe72cbbf03691c019
 
         :param numpy.array image_arr:
         :rtype: numpy.array
         '''
+<<<<<<< HEAD
         
         row = image_arr.shape[0] + 2
         col = image_arr.shape[1] + 2
@@ -295,13 +308,25 @@ class SobelFilter_hol(BaseEstimator, TransformerMixin):
 
         return image_sobel.flatten()
 
+=======
+        x_shape, y_shape = image_arr.shape
+        x = np.linspace(0, 1, x_shape)
+        y = np.linspace(0, 1, y_shape)
+        xv, yv = np.meshgrid(x, y)
+
+        return xv.flatten()
+>>>>>>> cdd45421d0182f00e46f833fe72cbbf03691c019
 
     def fit(self, data_df, y=None):
         '''
         fit
 
         :param padas.DataFrame data_df
+<<<<<<< HEAD
         :rtype: SobelFilter
+=======
+        :rtype: RelativeCoordinateX
+>>>>>>> cdd45421d0182f00e46f833fe72cbbf03691c019
         '''
 
         return self
@@ -310,6 +335,7 @@ class SobelFilter_hol(BaseEstimator, TransformerMixin):
         '''
         transform
 
+<<<<<<< HEAD
         :param pandas.DataFrame data_df:
         :rtype: numpy.array
         '''
@@ -449,6 +475,21 @@ class RapFilter(BaseEstimator, TransformerMixin):
 class GauFilter(BaseEstimator, TransformerMixin):
     '''
     gray scale feature
+=======
+        :param padas.DataFrame data_df
+        :rtype: numpy.array
+        '''
+        train = data_df["input"]
+        # train = data_df["train"]
+
+        return np.concatenate(train.apply(self.get_feature_array))[None].T\
+            .astype(np.float)
+
+
+class RelativeCoordinateY(BaseEstimator, TransformerMixin):
+    '''
+    relative coordinate of image feature
+>>>>>>> cdd45421d0182f00e46f833fe72cbbf03691c019
     '''
 
     def get_feature_names(self):
@@ -456,13 +497,20 @@ class GauFilter(BaseEstimator, TransformerMixin):
         return [self.__class__.__name__]
 
     @staticmethod
+<<<<<<< HEAD
     def get_filter_array(image_arr):
         '''
         get avarage image
+=======
+    def get_feature_array(image_arr):
+        '''
+        relative coordinate
+>>>>>>> cdd45421d0182f00e46f833fe72cbbf03691c019
 
         :param numpy.array image_arr:
         :rtype: numpy.array
         '''
+<<<<<<< HEAD
     
         row = image_arr.shape[0] + 2
         col = image_arr.shape[1] + 2
@@ -487,13 +535,25 @@ class GauFilter(BaseEstimator, TransformerMixin):
         
         return image_gau.flatten()
 
+=======
+        x_shape, y_shape = image_arr.shape
+        x = np.linspace(0, 1, x_shape)
+        y = np.linspace(0, 1, y_shape)
+        xv, yv = np.meshgrid(x, y)
+
+        return yv.flatten()
+>>>>>>> cdd45421d0182f00e46f833fe72cbbf03691c019
 
     def fit(self, data_df, y=None):
         '''
         fit
 
         :param padas.DataFrame data_df
+<<<<<<< HEAD
         :rtype: RapFilter
+=======
+        :rtype: RelativeCoordinateY
+>>>>>>> cdd45421d0182f00e46f833fe72cbbf03691c019
         '''
 
         return self
@@ -502,6 +562,7 @@ class GauFilter(BaseEstimator, TransformerMixin):
         '''
         transform
 
+<<<<<<< HEAD
         :param pandas.DataFrame data_df:
         :rtype: numpy.array
         '''
@@ -512,24 +573,38 @@ class GauFilter(BaseEstimator, TransformerMixin):
         return np.concatenate(train.apply(self.get_filter_array))[None].T\
             .astype(np.float)
 
+=======
+        :param padas.DataFrame data_df
+        :rtype: numpy.array
+        '''
+        train = data_df["input"]
+        # train = data_df["train"]
+
+        return np.concatenate(train.apply(self.get_feature_array))[None].T\
+            .astype(np.float)
+>>>>>>> cdd45421d0182f00e46f833fe72cbbf03691c019
 
 feature_transformer_rule = [
     ('gray', GrayParam()),
-    ('side', SideofImage()),
     ('avarage', AverageImage()),
     ('rowavarage', RowAverageImage()),
     ('colavarage', ColAverageImage()),
+<<<<<<< HEAD
     ('solbel_hol', SobelFilter_hol()),
     ('solbel_ver', SobelFilter_ver()),
     ('raprasian', RapFilter()),
     ('gaussian', GauFilter()),
+=======
+    ('coordinateX', RelativeCoordinateX()),
+    ('coordinateY', RelativeCoordinateY()),
+>>>>>>> cdd45421d0182f00e46f833fe72cbbf03691c019
 ]
 
 if __name__ == '__main__':
     _, _, _, train_gray_data, _, _, labels = i_p.load_data()
     data_df = make_data_df(train_gray_data, labels)
     transformer_list = [
-        ('average', RowAverageImage())
+        ('average', RelativeCoordinateY())
     ]
     fu = FeatureUnion(transformer_list=transformer_list)
     feature = fu.fit_transform(data_df)
