@@ -28,7 +28,7 @@ def dump_train():
     feature_name_list = fu.get_feature_names() + ["target"]
     train_X = fu.fit_transform(train_df)
     train_y = np.concatenate(train_df["label"].apply(lambda x: x.flatten()))
-    train_X, train_y = cl.downsampling_data(train_X, train_y, 0.2)
+    train_X, train_y = cl.downsampling_data(train_X, train_y, 0.3)
     train_dump = pd.DataFrame(np.c_[train_X, train_y], columns=feature_name_list)
     dump_path = os.path.abspath(os.path.dirname(__file__)) +\
         "/../tmp/train_dump"

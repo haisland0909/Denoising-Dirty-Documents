@@ -274,27 +274,26 @@ class SobelFilter_hol(BaseEstimator, TransformerMixin):
         :param numpy.array image_arr:
         :rtype: numpy.array
         '''
-        
+
         row = image_arr.shape[0] + 2
         col = image_arr.shape[1] + 2
-        
-        cols = [0]*col
+
+        cols = [0] * col
         image_pad = [cols] * row
         image_pad = np.asarray(image_pad)
         image_pad = image_pad.astype(np.uint8)
-        
-        image_pad[1:1+image_arr.shape[0], 1:1+image_arr.shape[1]] = image_arr
+
+        image_pad[1:1 + image_arr.shape[0], 1:1 + image_arr.shape[1]] = image_arr
         image_sobel = np.zeros(image_arr.shape)
 
         for row in xrange(image_sobel.shape[0]):
             for col in xrange(image_sobel.shape[1]):
 
-                image_sobel[row][col] = -1 * image_pad[row][col]   + 0 * image_pad[row+1][col]   +  1 * image_pad[row+2][col] +\
-                                        -2 * image_pad[row][col+1] + 0 * image_pad[row+1][col+1] +  2 * image_pad[row+2][col+1] +\
-                                        -1 * image_pad[row][col+2] + 0 * image_pad[row+2][col+2] +  1 * image_pad[row+2][col+2]
+                image_sobel[row][col] = -1 * image_pad[row][col]   + 0 * image_pad[row + 1][col]   +  1 * image_pad[row + 2][col] +\
+                                        -2 * image_pad[row][col + 1] + 0 * image_pad[row + 1][col + 1] +  2 * image_pad[row + 2][col + 1] +\
+                                        -1 * image_pad[row][col + 2] + 0 * image_pad[row + 2][col + 2] + 1 * image_pad[row + 2][col + 2]
 
         return image_sobel.flatten()
-
 
     def fit(self, data_df, y=None):
         '''
@@ -315,10 +314,11 @@ class SobelFilter_hol(BaseEstimator, TransformerMixin):
         '''
 
         train = data_df["input"]
-        #print train
-        
+        # print train
+
         return np.concatenate(train.apply(self.get_filter_array))[None].T\
             .astype(np.float)
+
 
 class SobelFilter_ver(BaseEstimator, TransformerMixin):
     '''
@@ -337,27 +337,26 @@ class SobelFilter_ver(BaseEstimator, TransformerMixin):
         :param numpy.array image_arr:
         :rtype: numpy.array
         '''
-        
+
         row = image_arr.shape[0] + 2
         col = image_arr.shape[1] + 2
-        
-        cols = [0]*col
+
+        cols = [0] * col
         image_pad = [cols] * row
         image_pad = np.asarray(image_pad)
         image_pad = image_pad.astype(np.uint8)
-        
-        image_pad[1:1+image_arr.shape[0], 1:1+image_arr.shape[1]] = image_arr
+
+        image_pad[1:1 + image_arr.shape[0], 1:1 + image_arr.shape[1]] = image_arr
         image_sobel = np.zeros(image_arr.shape)
 
         for row in xrange(image_sobel.shape[0]):
             for col in xrange(image_sobel.shape[1]):
 
-                image_sobel[row][col] = -1 * image_pad[row][col]   + -2 * image_pad[row+1][col]  + -1 * image_pad[row+2][col] +\
-                                         0 * image_pad[row][col+1] + 0 * image_pad[row+1][col+1] +  0 * image_pad[row+2][col+1] +\
-                                         1 * image_pad[row][col+2] + 2 * image_pad[row+2][col+2] +  1 * image_pad[row+2][col+2]
+                image_sobel[row][col] = -1 * image_pad[row][col]   + -2 * image_pad[row + 1][col]  + -1 * image_pad[row + 2][col] +\
+                    0 * image_pad[row][col + 1] + 0 * image_pad[row + 1][col + 1] +  0 * image_pad[row + 2][col + 1] +\
+                    1 * image_pad[row][col + 2] + 2 * image_pad[row + 2][col + 2] + 1 * image_pad[row + 2][col + 2]
 
         return image_sobel.flatten()
-
 
     def fit(self, data_df, y=None):
         '''
@@ -378,10 +377,11 @@ class SobelFilter_ver(BaseEstimator, TransformerMixin):
         '''
 
         train = data_df["input"]
-        #print train
-        
+        # print train
+
         return np.concatenate(train.apply(self.get_filter_array))[None].T\
             .astype(np.float)
+
 
 class RapFilter(BaseEstimator, TransformerMixin):
     '''
@@ -400,27 +400,26 @@ class RapFilter(BaseEstimator, TransformerMixin):
         :param numpy.array image_arr:
         :rtype: numpy.array
         '''
-    
+
         row = image_arr.shape[0] + 2
         col = image_arr.shape[1] + 2
-        
-        cols = [0]*col
+
+        cols = [0] * col
         image_pad = [cols] * row
         image_pad = np.asarray(image_pad)
         image_pad = image_pad.astype(np.uint8)
-        
-        image_pad[1:1+image_arr.shape[0], 1:1+image_arr.shape[1]] = image_arr
+
+        image_pad[1:1 + image_arr.shape[0], 1:1 + image_arr.shape[1]] = image_arr
         image_rap = np.zeros(image_arr.shape)
 
         for row in xrange(image_rap.shape[0]):
             for col in xrange(image_rap.shape[1]):
 
-                image_rap[row][col] =  1 * image_pad[row][col]   +  1 * image_pad[row+1][col]   + 1 * image_pad[row+2][col] +\
-                                       1 * image_pad[row][col+1] + -8 * image_pad[row+1][col+1] + 1 * image_pad[row+2][col+1] +\
-                                       1 * image_pad[row][col+2] +  1 * image_pad[row+2][col+2] + 1* image_pad[row+2][col+2]
-        
-        return image_rap.flatten()
+                image_rap[row][col] =  1 * image_pad[row][col]   +  1 * image_pad[row + 1][col]   + 1 * image_pad[row + 2][col] +\
+                    1 * image_pad[row][col + 1] + -8 * image_pad[row + 1][col + 1] + 1 * image_pad[row + 2][col + 1] +\
+                    1 * image_pad[row][col + 2] + 1 * image_pad[row + 2][col + 2] + 1 * image_pad[row + 2][col + 2]
 
+        return image_rap.flatten()
 
     def fit(self, data_df, y=None):
         '''
@@ -441,10 +440,11 @@ class RapFilter(BaseEstimator, TransformerMixin):
         '''
 
         train = data_df["input"]
-        #print train
-        
+        # print train
+
         return np.concatenate(train.apply(self.get_filter_array))[None].T\
             .astype(np.float)
+
 
 class GauFilter(BaseEstimator, TransformerMixin):
     '''
@@ -463,30 +463,28 @@ class GauFilter(BaseEstimator, TransformerMixin):
         :param numpy.array image_arr:
         :rtype: numpy.array
         '''
-    
+
         row = image_arr.shape[0] + 2
         col = image_arr.shape[1] + 2
-        
-        cols = [0]*col
+
+        cols = [0] * col
         image_pad = [cols] * row
         image_pad = np.asarray(image_pad)
         image_pad = image_pad.astype(np.uint8)
-        
-        image_pad[1:1+image_arr.shape[0], 1:1+image_arr.shape[1]] = image_arr
+
+        image_pad[1:1 + image_arr.shape[0], 1:1 + image_arr.shape[1]] = image_arr
         image_gau = np.zeros(image_arr.shape)
 
         for row in xrange(image_gau.shape[0]):
             for col in xrange(image_gau.shape[1]):
 
-                image_gau[row][col] =  float(image_pad[row][col])   / 9 +  float(image_pad[row+1][col])   / 9 + float(image_pad[row+2][col])   / 9 +\
-                                       float(image_pad[row][col+1]) / 9 +  float(image_pad[row+1][col+1]) / 9 + float(image_pad[row+2][col+1]) / 9 +\
-                                       float(image_pad[row][col+2]) / 9 +  float(image_pad[row+2][col+2]) / 9 + float(image_pad[row+2][col+2]) / 9
-      
-                
-        #image_gau = image_gau.astype(np.uint8)
-        
-        return image_gau.flatten()
+                image_gau[row][col] =  float(image_pad[row][col])   / 9 +  float(image_pad[row + 1][col])   / 9 + float(image_pad[row + 2][col])   / 9 +\
+                    float(image_pad[row][col + 1]) / 9 +  float(image_pad[row + 1][col + 1]) / 9 + float(image_pad[row + 2][col + 1]) / 9 +\
+                    float(image_pad[row][col + 2]) / 9 + float(image_pad[row + 2][col + 2]) / 9 + float(image_pad[row + 2][col + 2]) / 9
 
+        #image_gau = image_gau.astype(np.uint8)
+
+        return image_gau.flatten()
 
     def fit(self, data_df, y=None):
         '''
@@ -507,10 +505,11 @@ class GauFilter(BaseEstimator, TransformerMixin):
         '''
 
         train = data_df["input"]
-        #print train
-        
+        # print train
+
         return np.concatenate(train.apply(self.get_filter_array))[None].T\
             .astype(np.float)
+
 
 class RelativeCoordinateX(BaseEstimator, TransformerMixin):
     '''
@@ -603,7 +602,7 @@ class RelativeCoordinateY(BaseEstimator, TransformerMixin):
 
 feature_transformer_rule = [
     ('gray', GrayParam()),
-    ('side', SideofImage()),
+    # ('side', SideofImage()),
     ('avarage', AverageImage()),
     ('rowavarage', RowAverageImage()),
     ('colavarage', ColAverageImage()),

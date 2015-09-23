@@ -26,10 +26,10 @@ clf_dict = {
     },
     'GB2': {
         "name": 'Gradient Boosting New',
-        "clf": GradientBoostingRegressor(random_state=1, learning_rate=0.005,
+        "clf": GradientBoostingRegressor(random_state=1, learning_rate=0.05,
                                          n_estimators=3000, subsample=0.8,
-                                         max_features=0.8, min_samples_split=2,
-                                         min_samples_leaf=2, max_depth=5)
+                                         max_features=0.3, min_samples_split=2,
+                                         min_samples_leaf=1, max_depth=7)
     },
     'SGDR': {
         "name": 'SGD Regression',
@@ -74,7 +74,7 @@ def prediction(clf_name):
     print "****************classifier****************"
     print clf_dict[clf_name]["clf"]
     clf = clf_dict[clf_name]["clf"]
-    
+
     _, _, _, train_gray_data, test_gray_data, _, labels = i_p.load_data()
     train_keys = train_gray_data.keys()
     test_keys = test_gray_data.keys()
@@ -88,12 +88,10 @@ def prediction(clf_name):
     train_df.columns = ["pngname", "input", "label"]
     test_df.columns = ["pngname", "input"]
 
-    
+    # operation check
     if clf_name == "SGDB":
-
-        # operation check
-        #train_df, train_keys, test_df, test_keys  = pre.make_checkdata(mode="df")
-        #train_df, train_keys, _, _  = pre.make_checkdata(mode="df")
+        # train_df, train_keys, test_df, test_keys  = pre.make_checkdata(mode="df")
+        # train_df, train_keys, _, _  = pre.make_checkdata(mode="df")
 
         for i in xrange(len(train_keys)):
 
@@ -102,9 +100,8 @@ def prediction(clf_name):
 
     else:
 
-        #operation check
-        #train_df, train_keys, _, _  = pre.make_checkdata(mode="df")
-        
+        # operation check
+        # train_df, train_keys, _, _  = pre.make_checkdata(mode="df")
         fu = FeatureUnion(transformer_list=f.feature_transformer_rule)
         train_X = fu.fit_transform(train_df)
         train_y = np.concatenate(train_df["label"].apply(lambda x: x.flatten()))
