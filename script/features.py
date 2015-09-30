@@ -6,6 +6,7 @@ Created on 2015/08/27
 import numpy as np
 import img_to_pickle as i_p
 import pandas as pd
+import cv2
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import FeatureUnion
 
@@ -257,43 +258,76 @@ class ColAverageImage(BaseEstimator, TransformerMixin):
             .astype(np.float)
 
 
-class SobelFilter_hol(BaseEstimator, TransformerMixin):
+class PatchAverageImage(BaseEstimator, TransformerMixin):
     '''
-    gray scale feature
+    patch average of image feature
     '''
+
+    def __init__(self, size=3):
+        self._size = size
 
     def get_feature_names(self):
 
-        return [self.__class__.__name__]
+        return [self.__class__.__name__ + "_size=%s" % self._size]
 
-    @staticmethod
-    def get_filter_array(image_arr):
+    def get_feature_array(self, image_arr):
         '''
         get avarage image
 
         :param numpy.array image_arr:
         :rtype: numpy.array
         '''
+        kernel = np.ones((self._size, self._size), np.float32) / (self._size ** 2)
+        dst = cv2.filter2D(image_arr, -1, kernel)
 
-        row = image_arr.shape[0] + 2
-        col = image_arr.shape[1] + 2
+        return dst.flatten()
 
-        cols = [0] * col
-        image_pad = [cols] * row
-        image_pad = np.asarray(image_pad)
-        image_pad = image_pad.astype(np.uint8)
+    def fit(self, data_df, y=None):
+        '''
+        fit
 
-        image_pad[1:1 + image_arr.shape[0], 1:1 + image_arr.shape[1]] = image_arr
-        image_sobel = np.zeros(image_arr.shape)
+        :param padas.DataFrame data_df
+        :rtype: SideofImage
+        '''
 
-        for row in xrange(image_sobel.shape[0]):
-            for col in xrange(image_sobel.shape[1]):
+        return self
 
-                image_sobel[row][col] = -1 * image_pad[row][col]   + 0 * image_pad[row + 1][col]   +  1 * image_pad[row + 2][col] +\
-                                        -2 * image_pad[row][col + 1] + 0 * image_pad[row + 1][col + 1] +  2 * image_pad[row + 2][col + 1] +\
-                                        -1 * image_pad[row][col + 2] + 0 * image_pad[row + 2][col + 2] + 1 * image_pad[row + 2][col + 2]
+    def transform(self, data_df):
+        '''
+        transform
 
-        return image_sobel.flatten()
+        :param padas.DataFrame data_df
+        :rtype: numpy.array
+        '''
+        train = data_df["input"]
+        # train = data_df["train"]
+
+        return np.concatenate(train.apply(self.get_feature_array))[None].T\
+            .astype(np.float)
+
+
+class SobelFilter_hol(BaseEstimator, TransformerMixin):
+    '''
+    gray scale feature
+    '''
+
+    def __init__(self, k_size=-1):
+        self._k_size = k_size
+
+    def get_feature_names(self):
+
+        return [self.__class__.__name__ + "_k=%s" % self._k_size]
+
+    def get_filter_array(self, image_arr):
+        '''
+        get avarage image
+
+        :param numpy.array image_arr:
+        :rtype: numpy.array
+        '''
+        sobelx = cv2.Sobel(image_arr, cv2.CV_64F, 1, 0, ksize=self._k_size)
+
+        return sobelx.flatten()
 
     def fit(self, data_df, y=None):
         '''
@@ -322,41 +356,26 @@ class SobelFilter_hol(BaseEstimator, TransformerMixin):
 
 class SobelFilter_ver(BaseEstimator, TransformerMixin):
     '''
-    gray scale feature
+    sobel scale feature
     '''
+
+    def __init__(self, k_size=-1):
+        self._k_size = k_size
 
     def get_feature_names(self):
 
-        return [self.__class__.__name__]
+        return [self.__class__.__name__ + "_k=%s" % self._k_size]
 
-    @staticmethod
-    def get_filter_array(image_arr):
+    def get_filter_array(self, image_arr):
         '''
         get avarage image
 
         :param numpy.array image_arr:
         :rtype: numpy.array
         '''
+        sobely = cv2.Sobel(image_arr, cv2.CV_64F, 0, 1, ksize=self._k_size)
 
-        row = image_arr.shape[0] + 2
-        col = image_arr.shape[1] + 2
-
-        cols = [0] * col
-        image_pad = [cols] * row
-        image_pad = np.asarray(image_pad)
-        image_pad = image_pad.astype(np.uint8)
-
-        image_pad[1:1 + image_arr.shape[0], 1:1 + image_arr.shape[1]] = image_arr
-        image_sobel = np.zeros(image_arr.shape)
-
-        for row in xrange(image_sobel.shape[0]):
-            for col in xrange(image_sobel.shape[1]):
-
-                image_sobel[row][col] = -1 * image_pad[row][col]   + -2 * image_pad[row + 1][col]  + -1 * image_pad[row + 2][col] +\
-                    0 * image_pad[row][col + 1] + 0 * image_pad[row + 1][col + 1] +  0 * image_pad[row + 2][col + 1] +\
-                    1 * image_pad[row][col + 2] + 2 * image_pad[row + 2][col + 2] + 1 * image_pad[row + 2][col + 2]
-
-        return image_sobel.flatten()
+        return sobely.flatten()
 
     def fit(self, data_df, y=None):
         '''
@@ -385,41 +404,23 @@ class SobelFilter_ver(BaseEstimator, TransformerMixin):
 
 class RapFilter(BaseEstimator, TransformerMixin):
     '''
-    gray scale feature
+    raplacian scale feature
     '''
 
     def get_feature_names(self):
 
         return [self.__class__.__name__]
 
-    @staticmethod
-    def get_filter_array(image_arr):
+    def get_filter_array(self, image_arr):
         '''
-        get avarage image
+        get raplacian filter
 
         :param numpy.array image_arr:
         :rtype: numpy.array
         '''
+        laplacian = cv2.Laplacian(image_arr, cv2.CV_64F)
 
-        row = image_arr.shape[0] + 2
-        col = image_arr.shape[1] + 2
-
-        cols = [0] * col
-        image_pad = [cols] * row
-        image_pad = np.asarray(image_pad)
-        image_pad = image_pad.astype(np.uint8)
-
-        image_pad[1:1 + image_arr.shape[0], 1:1 + image_arr.shape[1]] = image_arr
-        image_rap = np.zeros(image_arr.shape)
-
-        for row in xrange(image_rap.shape[0]):
-            for col in xrange(image_rap.shape[1]):
-
-                image_rap[row][col] =  1 * image_pad[row][col]   +  1 * image_pad[row + 1][col]   + 1 * image_pad[row + 2][col] +\
-                    1 * image_pad[row][col + 1] + -8 * image_pad[row + 1][col + 1] + 1 * image_pad[row + 2][col + 1] +\
-                    1 * image_pad[row][col + 2] + 1 * image_pad[row + 2][col + 2] + 1 * image_pad[row + 2][col + 2]
-
-        return image_rap.flatten()
+        return laplacian.flatten()
 
     def fit(self, data_df, y=None):
         '''
@@ -606,8 +607,12 @@ feature_transformer_rule = [
     ('avarage', AverageImage()),
     ('rowavarage', RowAverageImage()),
     ('colavarage', ColAverageImage()),
+    ('patchavarage', PatchAverageImage()),
+    ('patchavarage2', PatchAverageImage(5)),
     ('solbel_hol', SobelFilter_hol()),
     ('solbel_ver', SobelFilter_ver()),
+    ('solbel_hol2', SobelFilter_hol(5)),
+    ('solbel_ver2', SobelFilter_ver(5)),
     ('raprasian', RapFilter()),
     ('gaussian', GauFilter()),
     ('coordinateX', RelativeCoordinateX()),
@@ -618,7 +623,7 @@ if __name__ == '__main__':
     _, _, _, train_gray_data, _, _, labels = i_p.load_data()
     data_df = make_data_df(train_gray_data, labels)
     transformer_list = [
-        ('average', GrayParam())
+        ('average', PatchAverageImage())
     ]
     fu = FeatureUnion(transformer_list=transformer_list)
     feature = fu.fit_transform(data_df)

@@ -25,10 +25,11 @@ def dump_train():
     test_df.columns = ["pngname", "input"]
 
     fu = FeatureUnion(transformer_list=f.feature_transformer_rule)
-    feature_name_list = fu.get_feature_names() + ["target"]
+    feature_name_list = [s.split("__")[1] for s in fu.get_feature_names()]
+    feature_name_list.append("target")
     train_X = fu.fit_transform(train_df)
     train_y = np.concatenate(train_df["label"].apply(lambda x: x.flatten()))
-    train_X, train_y = cl.downsampling_data(train_X, train_y, 0.3)
+    train_X, train_y = cl.downsampling_data(train_X, train_y, 0.25)
     train_dump = pd.DataFrame(np.c_[train_X, train_y], columns=feature_name_list)
     dump_path = os.path.abspath(os.path.dirname(__file__)) +\
         "/../tmp/train_dump"
