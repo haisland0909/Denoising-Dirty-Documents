@@ -48,8 +48,9 @@ class Predict_Picture:
         predict = pd.read_csv(file_path)
         for index, row in predict.iterrows():
             self._apply_inner(row)
+        self._create_image()
 
 
 if __name__ == '__main__':
     obj = Predict_Picture()
-    obj.create_picture("submission_2015_09_24_16_29_41.csv")
+    obj.create_picture("submission_repredict2015_10_04_23_28_27.csv")

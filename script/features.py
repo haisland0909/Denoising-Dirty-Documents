@@ -67,6 +67,40 @@ class GrayParam(BaseEstimator, TransformerMixin):
             .astype(np.float)
 
 
+class GrayParamBinary(BaseEstimator, TransformerMixin):
+    '''
+    gray scale feature
+    '''
+
+    def get_feature_names(self):
+
+        return [self.__class__.__name__]
+
+    def fit(self, data_df, y=None):
+        '''
+        fit
+
+        :param padas.DataFrame data_df
+        :rtype: GrayParam
+        '''
+
+        return self
+
+    def transform(self, data_df):
+        '''
+        transform
+
+        :param pandas.DataFrame data_df:
+        :rtype: numpy.array
+        '''
+
+        train = data_df["input"]
+        # train = data_df["train"]
+
+        return np.concatenate(train.apply(lambda x: (x / 255.0).flatten()))[None].T\
+            .astype(np.float)
+
+
 class SideofImage(BaseEstimator, TransformerMixin):
     '''
     side of image feature
@@ -211,6 +245,100 @@ class RowAverageImage(BaseEstimator, TransformerMixin):
             .astype(np.float)
 
 
+class RowDarkRatio(BaseEstimator, TransformerMixin):
+    '''
+    row dark ratio of image feature
+    '''
+
+    def get_feature_names(self):
+
+        return [self.__class__.__name__]
+
+    @staticmethod
+    def get_feature_array(image_arr):
+        '''
+        get avarage image
+
+        :param numpy.array image_arr:
+        :rtype: numpy.array
+        '''
+        res = np.ones(image_arr.shape)
+        cond = image_arr < 5
+        res = res * cond.mean(axis=1)[None].T
+
+        return res.flatten()
+
+    def fit(self, data_df, y=None):
+        '''
+        fit
+
+        :param padas.DataFrame data_df
+        :rtype: SideofImage
+        '''
+
+        return self
+
+    def transform(self, data_df):
+        '''
+        transform
+
+        :param padas.DataFrame data_df
+        :rtype: numpy.array
+        '''
+        train = data_df["input"]
+        # train = data_df["train"]
+
+        return np.concatenate(train.apply(self.get_feature_array))[None].T\
+            .astype(np.float)
+
+
+class RowMiddleRatio(BaseEstimator, TransformerMixin):
+    '''
+    row middle ratio of image feature
+    '''
+
+    def get_feature_names(self):
+
+        return [self.__class__.__name__]
+
+    @staticmethod
+    def get_feature_array(image_arr):
+        '''
+        get avarage image
+
+        :param numpy.array image_arr:
+        :rtype: numpy.array
+        '''
+        res = np.ones(image_arr.shape)
+        cond = (image_arr >= 10) & (image_arr <= 240)
+        mean = cond.mean(axis=1)[None].T
+
+        return mean.flatten()
+
+    def fit(self, data_df, y=None):
+        '''
+        fit
+
+        :param padas.DataFrame data_df
+        :rtype: SideofImage
+        '''
+
+        return self
+
+    def transform(self, data_df):
+        '''
+        transform
+
+        :param padas.DataFrame data_df
+        :rtype: numpy.array
+        '''
+        #train = data_df["label"]
+        train = data_df["input"]
+
+        return np.concatenate(train.apply(self.get_feature_array))[None].T\
+            .astype(np.float)
+
+
 class ColAverageImage(BaseEstimator, TransformerMixin):
     '''
     col average of image feature
@@ -231,6 +359,53 @@ class ColAverageImage(BaseEstimator, TransformerMixin):
         res = np.ones(image_arr.shape)
         mean = image_arr.mean(axis=0)[None]
         res = res * mean
+
+        return res.flatten()
+
+    def fit(self, data_df, y=None):
+        '''
+        fit
+
+        :param padas.DataFrame data_df
+        :rtype: SideofImage
+        '''
+
+        return self
+
+    def transform(self, data_df):
+        '''
+        transform
+
+        :param padas.DataFrame data_df
+        :rtype: numpy.array
+        '''
+        train = data_df["input"]
+        # train = data_df["train"]
+
+        return np.concatenate(train.apply(self.get_feature_array))[None].T\
+            .astype(np.float)
+
+
+class ColDarkRatio(BaseEstimator, TransformerMixin):
+    '''
+    col dark ratio of image feature
+    '''
+
+    def get_feature_names(self):
+
+        return [self.__class__.__name__]
+
+    @staticmethod
+    def get_feature_array(image_arr):
+        '''
+        get avarage image
+
+        :param numpy.array image_arr:
+        :rtype: numpy.array
+        '''
+        res = np.ones(image_arr.shape)
+        cond = image_arr < 5
+        res = res * cond.mean(axis=0)[None]
 
         return res.flatten()
 
@@ -605,28 +780,37 @@ feature_transformer_rule = [
     ('gray', GrayParam()),
     # ('side', SideofImage()),
     ('avarage', AverageImage()),
-    ('rowavarage', RowAverageImage()),
-    ('colavarage', ColAverageImage()),
+    ('rowdark', RowDarkRatio()),
+    ('coldark', ColDarkRatio()),
     ('patchavarage', PatchAverageImage()),
     ('patchavarage2', PatchAverageImage(5)),
     ('solbel_hol', SobelFilter_hol()),
     ('solbel_ver', SobelFilter_ver()),
-    ('solbel_hol2', SobelFilter_hol(5)),
-    ('solbel_ver2', SobelFilter_ver(5)),
     ('raprasian', RapFilter()),
     ('gaussian', GauFilter()),
     ('coordinateX', RelativeCoordinateX()),
     ('coordinateY', RelativeCoordinateY()),
 ]
 
+transformer_gray = [
+    ('average', GrayParamBinary())
+]
+
+transformer_middle = [
+    ('average', RowMiddleRatio())
+]
+
 if __name__ == '__main__':
-    _, _, _, train_gray_data, _, _, labels = i_p.load_data()
-    data_df = make_data_df(train_gray_data, labels)
+    _, _, _, train_gray_data, test_gray_data, _, labels = i_p.load_data()
+    # print test_gray_data
+    #data_df = make_data_df(test_gray_data, labels)
+    data_df = make_test_df(test_gray_data)
     transformer_list = [
-        ('average', PatchAverageImage())
+        ('average', GrayParamBinary())
     ]
     fu = FeatureUnion(transformer_list=transformer_list)
     feature = fu.fit_transform(data_df)
     print feature
     print feature.shape
+    print feature.mean()
     print np.isnan(feature).sum()

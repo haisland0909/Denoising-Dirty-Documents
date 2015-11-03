@@ -3,12 +3,13 @@
 from sklearn.pipeline import FeatureUnion
 from sklearn.grid_search import GridSearchCV
 from sklearn import preprocessing
-from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 import sklearn.linear_model
 import img_to_pickle as i_p
 import features as f
 import classify
 import preprocessing as pre
+import pickle
 import numpy as np
 import pandas as pd
 import datetime
@@ -30,6 +31,12 @@ clf_dict = {
                                          n_estimators=3000, subsample=0.8,
                                          max_features=0.3, min_samples_split=2,
                                          min_samples_leaf=1, max_depth=7)
+    },
+    "RF": {
+        "name": "RandomForest",
+        "clf": RandomForestRegressor(max_depth=7, max_features=0.4,
+                                     min_samples_leaf=10, min_samples_split=2,
+                                     n_jobs=-1, n_estimators=1000)
     },
     'SGDR': {
         "name": 'SGD Regression',
@@ -108,6 +115,13 @@ def prediction(clf_name):
         train_X, train_y = classify.downsampling_data(train_X, train_y, 0.2)
 
         clf.fit(train_X, train_y)
+    clf_dir = os.path.abspath(os.path.dirname(__file__)) +\
+        "/../tmp/fit_instance/"
+    now = datetime.datetime.now()
+    savefile = clf_dir + clf_name + now.strftime("%Y_%m_%d_%H_%M_%S") + ".pickle"
+    fi = open(savefile, "w")
+    pickle.dump(clf, fi)
+    fi.close()
 
     for i in xrange(len(test_keys)):
 
@@ -149,5 +163,5 @@ def prediction(clf_name):
 
 if __name__ == '__main__':
 
-    clf_name = "GB2"
+    clf_name = "RF"
     prediction(clf_name)
